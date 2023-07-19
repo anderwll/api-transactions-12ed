@@ -13,14 +13,13 @@ export class UserRepository {
   }
 
   public async get(id: string) {
-    // const result = await this.connection.query(`
-    //   select * from transactions.users where id = '${id}'
-    // `);
-
     const result = await this.connection.findOne({
       where: {
         id,
       },
+      // relations: {
+      //   transactions: true,
+      // },
     });
 
     if (!result) {
@@ -30,12 +29,18 @@ export class UserRepository {
     return UserRepository.mapRowToModel(result);
   }
 
-  public getByCpf(cpf: number) {
+  public getByCpf(cpf: string) {
     return usersList.find((user) => user.cpf === cpf);
   }
 
   public getByEmail(email: string) {
     return usersList.find((user) => user.email === email);
+  }
+
+  public existUser(id: string) {
+    const result = this.connection.exist({ where: { id } });
+
+    return result;
   }
 
   public static mapRowToModel(entity: UserEntity): User {

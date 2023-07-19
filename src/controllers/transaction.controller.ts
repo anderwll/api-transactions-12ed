@@ -33,6 +33,12 @@ export class TransactionController {
       const { userId } = req.params;
       const { type } = req.query;
 
+      const user = await new UserRepository().existUser(userId);
+
+      if (!user) {
+        return HttpResponse.notFound(res, "User");
+      }
+
       let transactions = await new TransactionRepository().list({
         userId: userId,
         type: type as TransactionType,
@@ -47,14 +53,14 @@ export class TransactionController {
         TransactionType.Outcome
       );
 
-      // return HttpResponse.success(res, "Transactions successfully listed", {
-      //     transactions: transactions.map((transaction) => transaction.toJson()),
-      //     balance: {
-      //         income,
-      //         outcome,
-      //         total: income - outcome,
-      //     },
-      // });
+      return HttpResponse.success(res, "Transactions successfully listed", {
+        transactions: transactions.map((transaction) => transaction.toJson()),
+        balance: {
+          income,
+          outcome,
+          total: income - outcome,
+        },
+      });
     } catch (error: any) {
       return HttpResponse.genericError(res, error);
     }

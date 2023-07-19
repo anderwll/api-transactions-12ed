@@ -1,5 +1,7 @@
 import { transactionsList } from "../data/transactions";
 import { Database } from "../database/config/database.connection";
+import { TransactionEntity } from "../database/entities/transaction.entity";
+import { UserEntity } from "../database/entities/user.entity";
 import { Transaction, TransactionType } from "../models/transaction.model";
 import { UserRepository } from "./user.repository";
 
@@ -9,7 +11,7 @@ interface ListTransactionsParams {
 }
 
 export class TransactionRepository {
-  private connection = Database.connection;
+  private connection = Database.connection.getRepository(TransactionEntity);
 
   public async create(transaction: Transaction) {
     let query = `insert into transactions.transaction `;
@@ -17,23 +19,16 @@ export class TransactionRepository {
     query += `values`;
     query += `('${transaction.id}', '${transaction.title}', ${transaction.value}, '${transaction.type}', '${transaction.user.id}')`;
 
-    console.log(query);
-
     await this.connection.query(query);
   }
 
   public async list(params: ListTransactionsParams) {
-    console.log(params);
+    const result = await this.connection.find({
+      where: { userId: params.userId, type: params.type },
+      relations: { user: true },
+    });
 
-    let query = "select * from transactions.transaction ";
-    query += `where id_user = '${params.userId}' `;
-
-    if (params.type) {
-      query += `and type = '${params.type}'`;
-    }
-
-    const result = await this.connection.query(query);
-    return result.rows.map((row: any) => this.mapRowToModel(row));
+    return result.map((row: any) => this.mapRowToModel(row));
   }
 
   public get(id: string) {
@@ -54,9 +49,7 @@ export class TransactionRepository {
   }
 
   private mapRowToModel(row: any) {
-    console.log(row);
-
-    const user = UserRepository.mapRowToModel(row);
+    const user = UserRepository.mapRowToModel(row.user);
 
     return Transaction.create(row, user);
   }

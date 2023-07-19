@@ -1,10 +1,9 @@
-import { Entity, Column, PrimaryColumn } from "typeorm";
+import { Entity, Column, OneToMany } from "typeorm";
+import { BaseEntity } from "./base-entity.entity";
+import { TransactionEntity } from "./transaction.entity";
 
 @Entity({ name: "users" })
-export class UserEntity {
-  @PrimaryColumn()
-  id: string;
-
+export class UserEntity extends BaseEntity {
   @Column()
   name: string;
 
@@ -19,4 +18,7 @@ export class UserEntity {
 
   @Column()
   password: string;
+
+  @OneToMany(() => TransactionEntity, (trans) => trans.user)
+  transactions: TransactionEntity[];
 }
