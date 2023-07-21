@@ -4,16 +4,16 @@ import { UserEntity } from "./user.entity";
 
 @Entity({ name: "transactions" })
 export class TransactionEntity extends BaseEntity {
-  @Column()
+  @Column({ length: "255", nullable: false })
   title: string;
 
-  @Column()
+  @Column({ type: "float", nullable: false })
   value: number;
 
-  @Column()
+  @Column({ type: "char", length: "1" })
   type: string;
 
-  @Column({ name: "user_id" })
+  @Column({ name: "user_id", type: "uuid" })
   userId: string;
 
   @ManyToOne(() => UserEntity)

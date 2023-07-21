@@ -3,6 +3,7 @@ import { Database } from "../database/config/database.connection";
 import { TransactionEntity } from "../database/entities/transaction.entity";
 import { UserEntity } from "../database/entities/user.entity";
 import { Transaction, TransactionType } from "../models/transaction.model";
+import { User } from "../models/user.model";
 import { UserRepository } from "./user.repository";
 
 interface ListTransactionsParams {
@@ -13,22 +14,27 @@ interface ListTransactionsParams {
 export class TransactionRepository {
   private connection = Database.connection.getRepository(TransactionEntity);
 
-  public async create(transaction: Transaction) {
-    let query = `insert into transactions.transaction `;
-    query += `(id, title, value, type, id_user) `;
-    query += `values`;
-    query += `('${transaction.id}', '${transaction.title}', ${transaction.value}, '${transaction.type}', '${transaction.user.id}')`;
+  public async create(transaction: Transaction, user: User) {
+    const transactionEntity = await this.connection.create({
+      id: transaction.id,
+      title: transaction.title,
+      type: transaction.type,
+      value: transaction.value,
+      userId: transaction.user.id,
+    });
 
-    await this.connection.query(query);
+    const results = await this.connection.save(transactionEntity);
+
+    return this.mapRowToModel(results, user);
   }
 
-  public async list(params: ListTransactionsParams) {
+  public async list(params: ListTransactionsParams, user: User) {
     const result = await this.connection.find({
       where: { userId: params.userId, type: params.type },
       relations: { user: true },
     });
 
-    return result.map((row: any) => this.mapRowToModel(row));
+    return result.map((row: any) => this.mapRowToModel(row, user));
   }
 
   public get(id: string) {
@@ -48,9 +54,7 @@ export class TransactionRepository {
     return result.rowCount;
   }
 
-  private mapRowToModel(row: any) {
-    const user = UserRepository.mapRowToModel(row.user);
-
-    return Transaction.create(row, user);
+  private mapRowToModel(entity: TransactionEntity, user: User) {
+    return Transaction.create(entity, user);
   }
 }

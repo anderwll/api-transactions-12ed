@@ -9,7 +9,11 @@
     "dev:debug": "ts-node-dev --inspect --respawn --transpile-only ./src/index.ts",
     "postinstall": "tsc",
     "start": "node ./build/index.js",
-    "build": "tsc"
+    "build": "tsc",
+    "migration:create": "typeorm migration:create src/database/migrations/AlterTable",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/config/database.config.ts",
+    "migration:show": "typeorm-ts-node-commonjs migration:show -d src/database/config/database.config.ts",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate TransactionEntity -d src/database/config/database.config.ts"
   },
   "keywords": [],
   "author": "",

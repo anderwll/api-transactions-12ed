@@ -2,11 +2,29 @@ import { Request, Response } from "express";
 import { HttpResponse } from "../util/http-response.adapter";
 import { usersList } from "../data/users";
 import { UserRepository } from "../repositories/user.repository";
+import { User } from "../models/user.model";
 
 export class UserController {
-  public create(req: Request, res: Response) {
+  public async create(req: Request, res: Response) {
     try {
-      // ...
+      const { name, cpf, email, age, password } = req.body;
+      const repository = new UserRepository();
+
+      const existByEmail = await repository.getByEmail(email);
+      const existByCpf = await repository.existByCpf(cpf);
+
+      if (existByCpf || existByCpf) {
+        return HttpResponse.fieldNotProvided(res, "E-mail or CPF");
+      }
+
+      const user = new User(name, cpf, email, age, password);
+      const result = await repository.create(user);
+
+      return HttpResponse.success(
+        res,
+        "Users successfully created",
+        result.toJson()
+      );
     } catch (error: any) {
       return HttpResponse.genericError(res, error);
     }
@@ -48,7 +66,7 @@ export class UserController {
     }
   }
 
-  public login(req: Request, res: Response) {
+  public async login(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
 
@@ -60,7 +78,8 @@ export class UserController {
         return HttpResponse.fieldNotProvided(res, "Password");
       }
 
-      const user = new UserRepository().getByEmail(email);
+      const user = await new UserRepository().getByEmail(email);
+
       if (!user) {
         // return HttpResponse.notFound(res, "User");
         return HttpResponse.invalidCredentials(res);

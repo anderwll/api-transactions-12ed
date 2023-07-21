@@ -11,17 +11,21 @@ export class TransactionController {
       const { title, type, value } = req.body;
 
       const user = await new UserRepository().get(userId);
+
       if (!user) {
         return HttpResponse.notFound(res, "User");
       }
 
       const transaction = new Transaction(title, value, type, user);
-      await new TransactionRepository().create(transaction);
+      const results = await new TransactionRepository().create(
+        transaction,
+        user
+      );
 
       return HttpResponse.created(
         res,
         "Transaction successfully created",
-        transaction
+        results.toJson()
       );
     } catch (error: any) {
       return HttpResponse.genericError(res, error);
@@ -33,16 +37,19 @@ export class TransactionController {
       const { userId } = req.params;
       const { type } = req.query;
 
-      const user = await new UserRepository().existUser(userId);
+      const user = await new UserRepository().get(userId);
 
       if (!user) {
         return HttpResponse.notFound(res, "User");
       }
 
-      let transactions = await new TransactionRepository().list({
-        userId: userId,
-        type: type as TransactionType,
-      });
+      let transactions = await new TransactionRepository().list(
+        {
+          userId: userId,
+          type: type as TransactionType,
+        },
+        user
+      );
 
       let income = this.sumTransactionsValues(
         transactions,
@@ -84,9 +91,12 @@ export class TransactionController {
         return HttpResponse.notFound(res, "Transaction");
       }
 
-      const transactions = await transactionRepository.list({
-        userId,
-      });
+      const transactions = await transactionRepository.list(
+        {
+          userId,
+        },
+        user
+      );
 
       // return HttpResponse.success(
       //     res,
@@ -123,9 +133,9 @@ export class TransactionController {
         transaction.value = value;
       }
 
-      const transactions = await transactionRepository.list({
-        userId,
-      });
+      // const transactions = await transactionRepository.list({
+      //   userId,
+      // }, user);
 
       // return HttpResponse.success(
       //     res,
