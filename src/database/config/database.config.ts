@@ -7,6 +7,14 @@ import { TransactionEntity } from "../entities/transaction.entity";
 
 dotenv.config();
 
+let entities = ["src/database/entities/**/*.ts"];
+let migrations = ["src/database/migrations/**/*.ts"];
+
+if (process.env.DB_ENV === "production") {
+  entities = ["build/database/entities/**/*.js"];
+  migrations = ["build/database/migrations/**/*.js"];
+}
+
 const dataSource = new DataSource({
   type: "postgres",
   url: process.env.DB_URL,
@@ -16,10 +24,10 @@ const dataSource = new DataSource({
   logging: true,
   synchronize: false,
   schema: "transactions",
-  // entities: ["src/database/entities/**/*entity.js"],
-  entities: [UserEntity, TransactionEntity],
-  // migrations: ["src/database/migrations/**/*.js"],
-  migrations: [CreateTableUsers1689892033847, TransactionEntity1689895189070],
+  entities: ["src/database/entities/**/*entity.js"],
+  //entities: [UserEntity, TransactionEntity],
+  migrations: ["src/database/migrations/**/*.js"],
+  //migrations: [CreateTableUsers1689892033847, TransactionEntity1689895189070],
   migrationsTableName: "my-migrations",
 });
 

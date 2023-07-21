@@ -1,4 +1,4 @@
-// import { v4 } from "uuid";
+import { randomUUID } from "crypto";
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -19,7 +19,7 @@ export class BaseEntity {
 
   @BeforeInsert()
   beforeInsert() {
-    // this.id = v4();
+    this.id = randomUUID();
     // this.createdAt = new Date();
     // this.updatedAt = new Date();
   }
