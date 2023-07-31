@@ -1,26 +1,3 @@
-ARQUITETURA DE SW
+# API TRANSACTIONS 
 
-/ APP  
-..../ FEATURES
-......../ NOME_FEATURE
-............/ REPOSITORIES
-............/ USECASE
-............/ CONTROLLERS
-............/ VALIDATORS -> MIDDLEWARES
-............/ ROUTES
-
-..../ SHARED
-......../ UTILS
-......../ ADAPTERS
-......../ CONTRACTS
-......../ DTOS
-
-..../ ENVS
-..../ MODELS
-
-/ MAIN
-..../ CONFIG
-..../ DATABASE
-..../ DOCS
-
-server.ts
+Desenvolvido com a turma da 12ª edição do programa Starter Growdev. 
